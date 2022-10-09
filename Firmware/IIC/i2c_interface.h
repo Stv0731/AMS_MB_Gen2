@@ -1,0 +1,50 @@
+/*
+********************************************************************************
+*
+* File : i2c_interface.h
+*
+* Date : 2022/05/04
+*
+* Revision : 1.0.0
+*
+* Usage: IIC read and write interface
+*
+*******************************************************************************/
+#ifndef __I2C_INTERFACE_H
+#define __I2C_INTERFACE_H
+
+#include "gpio.h"
+
+/** unsigned types */
+typedef unsigned char 			u8;
+typedef unsigned short 			u16;
+typedef unsigned int 			u32;
+typedef unsigned long long 		u64;
+typedef signed char 			s8;
+typedef signed short 			s16;
+typedef signed int 				s32;
+typedef signed long long 		s64;
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+/** SCL&SDA hardware operation  */
+#define IIC_SCL_Set(x)          SCL_PIN_SET(x)
+#define IIC_SDA_Set(x)          SDA_PIN_SET(x)
+#define IIC_SDA_Read()          SDA_PIN_GET()
+
+/** Device ID */
+#define DEVICE_ID               0xF0
+
+/** Global function Declarations */
+void delay_us(u32 micros);
+u8 bsp_iic_writeBytes(u8 dev, u8 length, u8* data);
+u8 bsp_iic_readBytes(u8 dev, u8 length, u8 *data);
+void bsp_IIC_Config(void);
+
+#endif /* End of i2c_interface include */
+/*******************END OF FILE******************************************************************************/
