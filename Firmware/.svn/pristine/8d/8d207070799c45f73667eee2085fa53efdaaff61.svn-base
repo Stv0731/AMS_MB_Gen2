@@ -1,0 +1,542 @@
+/*
+********************************************************************************
+*
+* File : amp6100br.c
+*
+* Date : 2022/05/04
+*
+* Revision : 1.0.0
+*
+* Usage: The sensor AMP6100 configuration and operation interface
+*
+*******************************************************************************/
+/******** Includes ************************************************************/
+#include "main.h"
+#include "string.h"
+
+#include "amp6100br.h"
+
+extern void SendSampleData(void);
+
+/******** Private definitions *************************************************/
+
+/******** Private function declarations ***************************************/
+
+/******** Variables ***********************************************************/
+amp_register_t  amp_Register;
+amp_object_t    amp_entity;
+
+/******** Function Prototype **************************************************/
+void vTask_amp6100br(void* argument);
+
+/*
+ ** PRIVATE FUNCTION: amp_write_cmd()
+ *
+ *  DESCRIPTION:
+ *      write the request command to sensor thru iic bus.
+ *
+ *  PARAMETERS:
+ *      *pdat: the pointer to the command.
+ *      len: the length of command in bytes.
+ *             
+ *  RETURNS:
+ *      None.
+ */  
+u8 amp_write_cmd(u8 *pdat, u8 len)
+{
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    u8 ret = FALSE;
+    
+    ret = bsp_iic_writeBytes(dev, len, pdat);
+    return ret;
+}
+
+/*
+ ** PRIVATE FUNCTION: amp_read_stus()
+ *
+ */  
+u8 amp_read_stus(void)
+{  
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    u8 stus;
+    bsp_iic_readBytes(dev, 1, (u8*)&stus);
+    return stus;
+}
+/*
+ ** PRIVATE FUNCTION: amp_read_bytes()
+ *
+ */  
+u8 amp_read_bytes(u8 *dst, u8 len)
+{
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    u8 ret = FALSE;
+    
+    ret = bsp_iic_readBytes(dev, len, dst);
+    return ret;
+}
+/*
+ ** PRIVATE FUNCTION: amp_read_reg()
+ *
+ */  
+u8 amp_read_reg(u8 addr, u16 *reg)
+{
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    u8 ret = FALSE;
+    u8 adr = addr;
+    u8 buf[3];
+    
+    ret = amp_write_cmd(&adr, 1);
+    
+    if (ret == TRUE){
+        ret = bsp_iic_readBytes(dev, 3, buf);
+        
+        if (ret == TRUE){
+            *reg = (((u16)buf[1])<<8) + buf[2];
+        }
+    }
+    
+    return ret;
+}
+/*
+ ** PRIVATE FUNCTION: amp_read_PresDat()
+ *
+ */  
+u8 amp_read_PresDat(u32 *pres)
+{
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    u8 buf[5];
+    
+    if (bsp_iic_readBytes(dev, 4, buf)){
+        *pres = ((u32)buf[1]<<16) + ((u32)buf[2]<<8) + buf[3];
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+/*
+ ** PRIVATE FUNCTION: amp_read_ADResult()
+ *
+ */  
+u8 amp_read_ADResult(u8 *pDat, u8 size)
+{
+    u8 dev = amp_entity.portID;//AMP6100BR_DEV_ID;
+    
+    if (bsp_iic_readBytes(dev, size, pDat)){
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+
+
+/*
+ ** PRIVATE FUNCTION: amp_read_TempDat()
+ *
+ */ 
+u16 amp_read_TempDat(u16 *temp)
+{
+    u8 dev = amp_entity.portID;
+    u8 buf[5];
+    
+    if (bsp_iic_readBytes(dev, 4, buf)){
+        *temp = ((u16)buf[2]<<8) + buf[3];
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+
+/*
+ ** PRIVATE FUNCTION: TempDat_Convert()
+ *
+ */ 
+s16 TempDat_Convert(u16 raw, u8 iir, s16 temp_max, s16 temp_min)
+{
+    s16 tmp = 0;
+    
+    if (iir){
+        tmp = ((s32)raw * (temp_max - temp_min) >> 16) + temp_min;
+    }
+    else{
+        tmp = ((s32)raw * (temp_max - temp_min) >> 16) + temp_min;
+    }
+    
+    tmp  = (tmp > temp_max) ? temp_max : ((tmp < temp_min) ? temp_min : tmp);
+    
+    return tmp;
+}
+
+u32 CHANGE_THRESHOLD  =  1000;//1800//900
+#define MAX_IIR_SIZE        8
+u8 iir_size = MAX_IIR_SIZE;
+u8 iir_start = 0;
+u64 praw_buf[16] = {100000,100000,100000,100000};
+u32 raw_hisotry = 0xFFFFFFFF;
+u8 raw_dir = 0;
+const u16 uweightCoef8[8] = {
+    50, 50, 100, 100, 100, 150, 200, 250, 
+};
+
+/*
+ ** PRIVATE FUNCTION: iir_prs_filter()
+ *
+ */ 
+u32 iir_prs_filter(u32 raw, u8 iir)
+{
+
+#if 0
+    u64 tmp64;
+    u8 i;
+    
+    for(i = 0; i < (MAX_IIR_SIZE-1); i++){
+        praw_buf[i] = praw_buf[i+1];
+    }
+    if (iir_start < MAX_IIR_SIZE){
+        praw_buf[i] = raw;
+    }
+    else{
+        if (raw > raw_hisotry + CHANGE_THRESHOLD){
+            u32 tmp = raw - raw_hisotry;
+            tmp = tmp * 5 / 10;
+            if (raw_dir == 1){
+                raw = tmp > CHANGE_THRESHOLD/2 ? (raw_hisotry + CHANGE_THRESHOLD/2) : (raw_hisotry + tmp);
+            }
+            else{
+                raw = raw_hisotry + tmp;
+            }
+        }
+        else if (raw < raw_hisotry - CHANGE_THRESHOLD){
+            //raw = raw_hisotry - CHANGE_THRESHOLD;
+            s32 tmp = raw_hisotry - raw;
+            tmp = tmp * 5 / 10;
+            if (raw_dir == 0){
+                raw = tmp > CHANGE_THRESHOLD/2 ? (raw_hisotry - CHANGE_THRESHOLD/2) : (raw_hisotry - tmp);
+            }
+            else{
+                raw = raw_hisotry - tmp;
+            }
+            
+        }
+        else{
+            int32_t stmp32 = (int32_t)raw - (int32_t)raw_hisotry;
+            raw = raw - stmp32/2;
+        }
+        praw_buf[i] = raw;
+    }
+    if (praw_buf[MAX_IIR_SIZE-1] < praw_buf[MAX_IIR_SIZE-2]){
+        raw_dir = 1;
+    }
+    else if (praw_buf[MAX_IIR_SIZE-1] > praw_buf[MAX_IIR_SIZE-2]){
+        raw_dir = 0;
+    }
+    if (++iir_start < MAX_IIR_SIZE){
+        raw_hisotry = raw;
+        return raw;
+    }
+    else{
+        iir_start = MAX_IIR_SIZE;
+        if (iir_size == 8){
+            tmp64 = 0;
+            for(i = 0; i < MAX_IIR_SIZE; i++){
+                tmp64 += praw_buf[i]*uweightCoef8[i];
+            }
+            tmp64 /= 1000;
+        }
+        raw_hisotry = (u32)tmp64;
+		praw_buf[i] = raw;
+        return (u32)tmp64;
+    }
+#else
+	if (iir !=0 && raw_hisotry != 0xFFFFFFFF)
+	{
+		raw = ((u64)raw + (u64)(iir - 1) * raw_hisotry) / iir;
+	}
+	raw_hisotry = raw;
+    return raw;
+#endif
+}
+
+/*
+ ** PRIVATE FUNCTION: PresDat_Convert()
+ *
+ */ 
+u32 PresDat_Convert(u32 raw, u8 iir, s32 pres_max, s32 pres_min)
+{
+    u32 tmp = 0;
+    
+    if (iir){
+        u64 tmp64;
+
+        tmp64 = iir_prs_filter(raw, iir);
+        tmp = ((u64)tmp64 * (pres_max - pres_min) >> 24) + pres_min;
+    }
+    else{
+        tmp = ((u64)raw * (pres_max - pres_min) >> 24) + pres_min;
+    }
+    
+    tmp  = (tmp > pres_max) ? pres_max : ((tmp < pres_min) ? pres_min : tmp);
+    
+    return (u32)tmp;
+}
+/*
+ ** PUBLIC FUNCTION: Amp_Control_Req()
+ *
+ */ 
+void Amp_Control_Req(u8 cmd, u8 osr_p, u8 osr_t)
+{
+    u8 t_cmd = cmd;
+    switch(cmd){
+    case 0xAC:
+        amp_entity.cmd_pres = t_cmd;
+        break;
+    default:
+        if ((cmd&0xB0) == 0xB0){
+            amp_entity.cmd_pres = t_cmd;
+            switch((cmd>>3)&0x01){
+            case 0:
+                amp_entity.osr_t = 4;
+                break;
+            default:
+                amp_entity.osr_t = 8;
+            }
+            switch(cmd&0x07){
+            case 0: amp_entity.osr_p = 128; break;
+            case 1: amp_entity.osr_p = 64; break;
+            case 2: amp_entity.osr_p = 32; break;
+            case 3: amp_entity.osr_p = 16; break;
+            case 4: amp_entity.osr_p = 8; break;
+            case 5: amp_entity.osr_p = 4; break;
+            case 6: amp_entity.osr_p = 2; break;
+            case 7: amp_entity.osr_p = 1; break;                
+            default: break;
+            }
+        }
+        break;
+    }
+
+    
+}
+
+/*
+ ** PUBLIC FUNCTION: Amp_ADC_Start()
+ *
+ */ 
+void Amp_ADC_Start(u8 en)
+{
+    if (en)
+        amp_entity.started = 1;
+    else
+        amp_entity.started = 0;
+}
+
+/*
+ ** PUBLIC FUNCTION: Amp_IIR_Enable()
+ *
+ *  DESCRIPTION:
+ *      config the I2C pin.
+ *
+ *  PARAMETERS:
+ *      en: 0~16, 0: disable, !0: filterfactor
+ *             
+ *  RETURNS:
+ *      None.
+ */ 
+void Amp_IIR_Enable(u8 en)
+{
+    amp_entity.iir_flg = en;
+}
+
+/*
+ ** PUBLIC FUNCTION: Amp_ODR_Set()
+ *
+ */ 
+void Amp_ODR_Set(u16 freq)
+{
+    if (freq >=1 && freq <= 100){  // 0.1~100Hz
+        amp_entity.odr = (float)freq;
+    }
+}
+
+
+
+/*
+ ** PUBLIC FUNCTION: SensorSampleOutput()
+ *
+ */ 
+u16 timeDelay = 0;
+u8 tmpbuf[10];
+u32 sampleholdingtime = 0;
+u32 sampletimer = 0;
+u32 sampletimer2 = 0;
+void SensorSampleOutput(amp_object_t *entity, u16 timebyms)
+{
+    static u16 timer;
+    u16 cyclebyms = (u16)((float)1000.0/entity->odr) + 1;
+    u16 raw_temp=0xFFFF;//, timeDelay;
+    u32 raw_pres=0x00FFFFFF;
+    u8 cmd;
+    //u32 tmp32;
+    
+    if (entity->started == 0){
+        return;
+    }
+    
+    timer++;
+    if (timer*timebyms >= cyclebyms){
+        timer = 0;
+        cmd = entity->cmd_pres;
+        
+        /* 1. Start ADC */
+        tmpbuf[0] = cmd;
+        amp_write_cmd(tmpbuf, 1);
+        sampletimer = HAL_GetTick();
+        /* 2. Waiting */
+        vTaskDelay(2);//delay_us(5000);
+        for(timeDelay = 0; timeDelay < 0x02FF; timeDelay++){
+            amp_stus_t stus;
+            stus.all = amp_read_stus();
+            
+            entity->stus.all = stus.all;
+            if (stus.bit.busy == 0){
+                break;
+            }
+        }
+        sampletimer2 = HAL_GetTick();
+        sampleholdingtime = sampletimer2 - sampletimer;
+        
+        /* 3. Read AD result */
+        if (amp_read_ADResult(tmpbuf, 6)){
+            entity->stus.all = tmpbuf[0];
+            raw_pres = ((u32)tmpbuf[1]<<16) + ((u32)tmpbuf[2]<<8) + ((u32)tmpbuf[3]<<0);
+            raw_temp = ((u16)tmpbuf[4]<< 8) + ((u16)tmpbuf[5]<<0);
+        }
+        
+        /* 4. Convert raw to real value */
+        if (raw_pres!=0x00FFFFFF){
+            entity->pres_raw = raw_pres;
+            entity->pres_rt = PresDat_Convert(raw_pres, entity->iir_flg, entity->presDat_max, entity->presDat_min);
+            entity->pres_raw = raw_hisotry;
+        }
+        if (raw_temp!=0xFFFF){
+            entity->temp_raw = raw_temp;
+            entity->temp_rt = TempDat_Convert(raw_temp, entity->iir_flg, entity->tempDat_max, entity->tempDat_min);
+        }
+        SendSampleData();
+            
+        sampleholdingtime = HAL_GetTick() - sampletimer;
+
+    }
+}
+
+/*
+ ** PRIVATE FUNCTION: osr_config_set()
+ *
+ */ 
+u8 osr_config_set(u8 osr_p, u8 osr_t)
+{
+	u8 cmd = 0xB0;
+	
+	if (osr_t == 8){
+		cmd |= 0x08;
+	}
+	switch(osr_p){
+		case 1:  cmd |= 0x07; break;
+		case 2:  cmd |= 0x06; break;
+		case 4:  cmd |= 0x05; break;
+		case 8:  cmd |= 0x04; break;
+		case 16: cmd |= 0x03; break;
+		case 32: cmd |= 0x02; break;
+		case 64: cmd |= 0x01; break;
+		default: break;
+	}
+	return cmd;
+}
+
+/*
+ ** PRIVATE FUNCTION: AmpSensorInit()
+ *
+ */ 
+void AmpSensorInit(void)
+{
+    amp_object_t *entity;
+    
+    memset(&amp_Register, 0, sizeof(amp_register_t));
+    memset(&amp_entity, 0, sizeof(amp_object_t));
+    
+    entity = &amp_entity;
+    
+    entity->portID = AMP6100BR_DEV_ID;
+    entity->pRegister = &amp_Register;
+    
+    entity->osr_p = 4;
+    entity->osr_t = 4;
+    entity->iir_flg = 4;
+    entity->odr = 1.0;       /* 1Hz */
+    
+    entity->tempDat_max = 1500;
+    entity->tempDat_min = -400;
+    entity->presDat_max = 1200000;  // 120000pa
+    entity->presDat_min = 200000;   //  20000pa
+    
+    entity->cmd_pres = osr_config_set(entity->osr_p, entity->osr_t);
+    
+    for(u8 i = 0; i < MAX_REG_NUMBER; i++){
+        //amp_read_reg(i, &amp_Register.array[i]);
+    }
+    entity->afe_default.all = entity->pRegister->array[14];
+    
+    entity->started = 1;    // only for debug
+}
+
+/*
+ ** PUBLIC FUNCTION: amp6100br_Init()
+ *
+ *  DESCRIPTION:
+ *      Initialize the amp6100br task.
+ *
+ *  PARAMETERS:
+ *      None.
+ *             
+ *  RETURNS:
+ *      None.
+ */
+void amp6100br_Init(void) {
+    
+	xTaskCreate(vTask_amp6100br,
+		"amp6100br handle",
+		2048/4,  // In words, not bytes
+		NULL,
+		2,
+		(TaskHandle_t*)NULL);
+}
+
+/*
+ ** PUBLIC FUNCTION: vTask_amp6100br()
+ *
+ *  DESCRIPTION:
+ *      the amp6100br task.
+ *
+ *  PARAMETERS:
+ *      None.
+ *             
+ *  RETURNS:
+ *      None.
+ */
+u8 db_data1;
+void vTask_amp6100br(void* argument) 
+{
+	uint32_t millisec = 2;
+	TickType_t ticks = pdMS_TO_TICKS(millisec);
+    
+    AmpSensorInit();
+    
+	for (;;) {
+        
+        SensorSampleOutput(&amp_entity, millisec);
+        
+        vTaskDelay(ticks);
+    }
+}
+
+
+/*******************END OF FILE************************************************/

@@ -1,0 +1,110 @@
+/*
+********************************************************************************
+*
+* File : amp6100br.h
+*
+* Date : 2022/05/04
+*
+* Revision : 1.0.0
+*
+* Usage: The header file for the sensor AMP6100 configuration and operation interface.
+*
+*******************************************************************************/
+#ifndef __AMP6100BR_H
+#define __AMP6100BR_H
+
+#include "i2c_interface.h"
+
+#define AMP6100BR_DEV_ID        0x78
+
+/* Sensor operating status information */
+typedef union{
+    u8 all;
+    struct{
+        u8 bit0:1;
+        u8 bit1:1;
+        u8 nvmErr:1;
+        u8 mode:1;
+        u8 bit4:1;
+        u8 busy:1;
+        u8 adcPwr:1;
+        u8 bit7:1;
+    }bit;
+}
+amp_stus_t;
+
+/* AEF format define */
+typedef union{
+    u16 all;
+    struct{
+        u16 gain_stage1:2;
+        u16 gain_stage2:3;
+        u16 gain_polarity:1;
+        u16 clk_divider:2;
+        u16 A2D_offset:3;
+        u16 osr_p:3;
+        u16 osr_t:2;
+    }bit;
+}
+amp_afe_t;
+
+/* NVM register define */
+#define MAX_REG_NUMBER      32
+typedef union{
+    u16 array[MAX_REG_NUMBER];
+}
+amp_register_t;
+
+#define MAX_COT_NUMBER      3
+#define MAX_COP_NUMBER      8
+
+typedef struct{
+    u8              portID;
+    u8              started;
+    amp_stus_t      stus;
+    amp_afe_t       afe_default;
+    amp_register_t* pRegister;
+    u32             co_t_array[MAX_COT_NUMBER];
+    u32             co_p_array[MAX_COP_NUMBER];
+    
+    u16             osr_p;
+    u16             osr_t;
+    u8              iir_flg;
+    float           odr;            /* Data output rate, unit:1Hz */
+    
+    s16             tempDat_max;    /* real temperature max data, unit: 0.1 cnetigrade */
+    s16             tempDat_min;
+    u32             presDat_max;    /* real pressure max data, unit: 1hPa */
+    u32             presDat_min;
+    
+    s16             temp_rt;
+    u32             pres_rt;
+    
+    u16             temp_raw;
+    u32             pres_raw;
+    
+    u8              cmd_pres;
+    //u8              cmd_temp;
+}
+amp_object_t;
+extern amp_object_t amp_entity;
+
+/** Global function Declarations */
+u8 amp_write_cmd(u8 *pdat, u8 len);
+u8 amp_read_stus(void);
+u8 amp_read_bytes(u8 *dst, u8 len);
+u8 amp_read_reg(u8 addr, u16 *reg);
+u8 amp_read_PresDat(u32 *pres);
+u16 amp_read_TempDat(u16 *temp);
+
+void Amp_Control_Req(u8 cmd, u8 osr_p, u8 osr_t);
+void Amp_ADC_Start(u8 en);
+void Amp_IIR_Enable(u8 en);
+void Amp_ODR_Set(u16 freq);
+
+void SensorSampleOutput(amp_object_t *entity, u16 timebyms);
+void AmpSensorInit(void);
+void amp6100br_Init(void);
+
+#endif /* End of amp6100br include */
+/*******************END OF FILE******************************************************************************/
