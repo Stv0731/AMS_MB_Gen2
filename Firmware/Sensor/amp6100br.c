@@ -239,6 +239,7 @@ u32 sampleholdingtime = 0;
 u32 sampletimer = 0;
 u32 sampletimer2 = 0;
 u16 cyclebyms;
+extern uint16_t AnalogRawData[];
 UINT8 AMP61XXSampleProcess(UINT32 timebyms)
 {
     static u16 timer;
@@ -305,7 +306,7 @@ UINT8 AMP61XXSampleProcess(UINT32 timebyms)
 
         entity->parent->pres_raw = entity->pres_raw;
         entity->parent->pres_rt  = entity->pres_rt;
-        entity->parent->temp_raw = entity->temp_raw;
+        entity->parent->temp_raw = AnalogRawData[1];//entity->temp_raw;
         entity->parent->temp_rt  = entity->temp_rt;
         ret = TRUE;
     }

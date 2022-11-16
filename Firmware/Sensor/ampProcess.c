@@ -18,6 +18,7 @@
 #include "ampProcess.h"
 #include "amp6100br.h"
 #include "bmp3_common.h"
+#include "amp8220.h"
 
 extern void SendSampleData(void);
 
@@ -144,7 +145,7 @@ void AmpProcessInit(void)
 		"AmpProcess",
 		2048/4,  // In words, not bytes
 		NULL,
-		2,
+		TASK_AMS_PRI,
 		&pxSensorTask);
 }
 
@@ -167,7 +168,7 @@ void vTaskAmpProcess(void* argument)
 	TickType_t ticks = pdMS_TO_TICKS(millisec);
     
     Amp61XXInit();
-        
+    Amp8220Init();
     //bmp3_ss_init();
 
 	for (;;) {
@@ -198,6 +199,7 @@ void vTaskAmpProcess(void* argument)
                     break;
                     
                 case AMP8220:
+                    ret = AMP8220SampleProcess(millisec);
                     break;
                     
                 case BMP3XX:
@@ -205,9 +207,9 @@ void vTaskAmpProcess(void* argument)
                         BMP3XXSampleProcess(millisec);
                     break;
             }
-            //if (ret != FALSE){
+            if (ret != FALSE){
                 SendSampleData();
-            //}
+            }
         }
         
         vTaskDelay(ticks);

@@ -30,8 +30,10 @@
 
 #define AMP6120_PRS_MIN	     20000             /*  20,000 Pa    */
 #define AMP6120_PRS_MAX	    120000             /* 120,000 Pa    */
-#define AMP6127_PRS_MIN	        20             /*   20 kPa      */
-#define AMP6127_PRS_MAX	      1020             /* 1020 kPa      */
+//#define AMP6127_PRS_MIN	        20             /*   20 kPa      */
+//#define AMP6127_PRS_MAX	      1020             /* 1020 kPa      */
+#define AMP6127_PRS_MIN	       100             /*  100 kPa      */
+#define AMP6127_PRS_MAX	      1200             /* 1200 kPa      */
 
 #define AMP61XX_PRS_SCALE       10
 

@@ -57,6 +57,8 @@ extern "C" {
 /* Task priority defines */
 #define TASK_START_PRI              (tskIDLE_PRIORITY + 2UL)
 #define TASK_ADC_PRI                (tskIDLE_PRIORITY + 2UL)
+#define TASK_AMS_PRI                (tskIDLE_PRIORITY + 3UL)
+#define TASK_USB_PRI                (tskIDLE_PRIORITY + 4UL)
 
 /* Task stack size defines */
 #define TASK_START_STK_SIZE         configMINIMAL_STACK_SIZE

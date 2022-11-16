@@ -12,6 +12,15 @@
 *******************************************************************************/
 #ifndef __AMPCOMM_H
 #define __AMPCOMM_H
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+
 /** unsigned types */
 typedef unsigned char 			UINT8;
 typedef unsigned short 			UINT16;

@@ -52,7 +52,7 @@ void Usb_Interface_Init(void) {
 		"USB CDC Comm",
 		2048/4,  // In words, not bytes
 		NULL,
-		2,
+		TASK_USB_PRI,
 		&pxUSBTask);
 }
 

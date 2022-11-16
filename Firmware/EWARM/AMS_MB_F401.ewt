@@ -1475,6 +1475,9 @@
                     <name>$PROJ_DIR$\..\Sensor\amp6100br.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Sensor\amp8220.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Sensor\ampProcess.c</name>
                 </file>
                 <file>
