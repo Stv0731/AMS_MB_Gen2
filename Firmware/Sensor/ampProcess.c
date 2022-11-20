@@ -30,6 +30,8 @@ extern void SendSampleData(void);
 amp_object_t amp_entity;
 static uint32_t raw_hisotry = 0xFFFFFFFF;
 
+uint8_t AutoRespFlag = 0;       // bit0: USB, bit1: SCI
+
 /******** Function Prototype **************************************************/
 void vTaskAmpProcess(void* argument);
 
@@ -196,10 +198,12 @@ void vTaskAmpProcess(void* argument)
                 case AMP6120:
                 case AMP6127:
                     ret = AMP61XXSampleProcess(millisec);
+                    //SendSampleData();
                     break;
                     
                 case AMP8220:
                     ret = AMP8220SampleProcess(millisec);
+                    //if(ret) SendSampleData();
                     break;
                     
                 case BMP3XX:
@@ -208,7 +212,10 @@ void vTaskAmpProcess(void* argument)
                     break;
             }
             if (ret != FALSE){
-                SendSampleData();
+                if (AutoRespFlag & 0x01)
+                    SendSampleData();
+                if (AutoRespFlag & 0x02)
+                    SendSampleDataFromSCI();
             }
         }
         

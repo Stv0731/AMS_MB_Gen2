@@ -25,7 +25,7 @@ typedef struct
   uint8_t       wPtr;
   uint32_t      tick;
 }
-_DEV_SCI_PACKET;
+_DEV_USB_PACKET;
 
 typedef enum
 {
@@ -54,13 +54,13 @@ typedef struct {
     uint32_t baud;                      /* 波特率 */
     uint32_t hal_idel_timeout;              /* 数据包结束超时时间,单位ms */
     uint32_t tr_timeout;                /* 发送转接受间隔时间,单位ms */
-}_SCI_PARAM;
+}_USB_PARAM;
 
 /* function defined for DevSci_Ioctl() */
-#define DEV_SCI_FC_CONFIG_SET           0
-#define DEV_SCI_FC_CONFIG_GET           1
-#define DEV_SCI_FC_STATUS_GET           2
-#define DEV_SCI_FC_DATA_READY_GET       3
+#define DEV_USB_FC_CONFIG_SET           0
+#define DEV_USB_FC_CONFIG_GET           1
+#define DEV_USB_FC_STATUS_GET           2
+#define DEV_USB_FC_DATA_READY_GET       3
 
 
 void Usb_Interface_Init(void);

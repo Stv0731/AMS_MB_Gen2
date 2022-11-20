@@ -80,7 +80,6 @@ void vStartTask(void* argument);
   * @brief  The application entry point.
   * @retval int
   */
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -120,11 +119,11 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  //osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
-  //MX_FREERTOS_Init();
+  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -219,7 +218,7 @@ void vStartTask(void* argument)
     uint32_t timestart = HAL_GetTick();
         
     /* ADC task init */
-    //ADC_Task_Init();
+    ADC_Task_Init();
     
     /* USB interface initialization */
     Usb_Interface_Init();

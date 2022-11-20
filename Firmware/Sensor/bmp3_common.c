@@ -239,8 +239,8 @@ uint8_t bmp_iir_config(uint8_t coef)
   struct bmp3_status status = {{0}};
 uint8_t bmp_config_action(void)
 {
-    uint8_t reg, value;
-    uint8_t id = 0x77;
+    //uint8_t reg, value;
+    //uint8_t id = 0x77;
     int8_t rslt = 0;
 
     if (bmp3_osrp_config_flg != 0xFF){
@@ -317,7 +317,7 @@ void BMP3XXSampleProcess(uint32_t timebyms)
     int8_t rslt = 0;
     uint8_t loop = 0;
     static uint16_t timer = 0;
-    static uint8_t switcher = 0;
+    //static uint8_t switcher = 0;
     if (amp_entity.odr != 0)
         bmp3xx_period = (uint32_t)((1000.0 / amp_entity.odr) + 10.0);
     bmp3xx_period = (bmp3xx_period < 10) ? 10 : (bmp3xx_period > 1000 ? 1000 : bmp3xx_period);
@@ -329,7 +329,7 @@ void BMP3XXSampleProcess(uint32_t timebyms)
         return;
     }
 
-    switcher = 0;
+    //switcher = 0;
     rslt = bmp3_get_status(&status, &dev);
     bmp3_check_rslt("bmp3_get_status", rslt);
 

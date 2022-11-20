@@ -306,7 +306,7 @@ UINT8 AMP61XXSampleProcess(UINT32 timebyms)
 
         entity->parent->pres_raw = entity->pres_raw;
         entity->parent->pres_rt  = entity->pres_rt;
-        entity->parent->temp_raw = AnalogRawData[1];//entity->temp_raw;
+        entity->parent->temp_raw = entity->temp_raw;
         entity->parent->temp_rt  = entity->temp_rt;
         ret = TRUE;
     }

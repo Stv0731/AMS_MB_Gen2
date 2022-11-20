@@ -59,6 +59,7 @@ extern "C" {
 #define TASK_ADC_PRI                (tskIDLE_PRIORITY + 2UL)
 #define TASK_AMS_PRI                (tskIDLE_PRIORITY + 3UL)
 #define TASK_USB_PRI                (tskIDLE_PRIORITY + 4UL)
+#define TASK_SCI_PRI                (tskIDLE_PRIORITY + 4UL)
 
 /* Task stack size defines */
 #define TASK_START_STK_SIZE         configMINIMAL_STACK_SIZE
@@ -69,6 +70,7 @@ extern TaskHandle_t StartTaskHandle;
 extern TaskHandle_t pxADCTask;
 extern TaskHandle_t pxUSBTask;
 extern TaskHandle_t pxSensorTask;
+extern TaskHandle_t pxSCITask;
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

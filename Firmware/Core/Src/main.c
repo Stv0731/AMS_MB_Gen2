@@ -57,6 +57,7 @@ TaskHandle_t StartTaskHandle;
 TaskHandle_t pxADCTask;
 TaskHandle_t pxUSBTask;
 TaskHandle_t pxSensorTask;
+TaskHandle_t pxSCITask;
 
 uint8_t usbRxData[2000];
 uint16_t usbRxLen;
@@ -80,7 +81,6 @@ void vStartTask(void* argument);
   * @brief  The application entry point.
   * @retval int
   */
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -106,13 +106,13 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
-  MX_I2C3_Init();
-  MX_SPI1_Init();
-  MX_SPI2_Init();
-  MX_SPI3_Init();
-  MX_SPI4_Init();
+//  MX_I2C3_Init();
+//  MX_SPI1_Init();
+//  MX_SPI2_Init();
+//  MX_SPI3_Init();
+//  MX_SPI4_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
+  //MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   SDA_Pin_Config(0);
   SCL_Pin_Config(0);
@@ -211,6 +211,7 @@ void vStartTask(void* argument)
     TickType_t ticks = pdMS_TO_TICKS(millisec);
     
     uint16_t i = 0;
+    //uint8_t sci_send_pack[10] = {'1','2','3','4','5','6','7','8','9','10'};
     
     (void) argument;
     /* init code for USB_DEVICE */
@@ -219,10 +220,13 @@ void vStartTask(void* argument)
     uint32_t timestart = HAL_GetTick();
         
     /* ADC task init */
-    ADC_Task_Init();
+    //ADC_Task_Init();
     
     /* USB interface initialization */
     Usb_Interface_Init();
+    
+    /* SCI_Interface_Init */
+    SCI_Interface_Init();
     
     /* Sensor process task create */
     AmpProcessInit();
@@ -232,6 +236,7 @@ void vStartTask(void* argument)
         if(++i == 100){
             LED_GREEN_ON();
             LED_RED_BLINK();
+            //SCI_Send_MsgProduce(sci_send_pack, 6);
         }
         else if (i==200){
             i = 0;
