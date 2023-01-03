@@ -48,10 +48,10 @@ u8 amp_write_cmd(u8 *pdat, u8 len)
     
     if (amp61xx_entity.parent != NULL){
         if (amp61xx_entity.parent->SampleChannel == I2C_CH1){
-            ret = bsp_iic_writeBytes(dev, len, pdat);
+            ret = bsp_iic_writeBytes(DEV_IIC_SENSOR, dev, len, pdat);
         }
         else if (amp61xx_entity.parent->SampleChannel == I2C_CH2){
-            //ret = bsp_iic_writeBytes(dev, len, pdat);
+            //ret = bsp_iic_writeBytes(DEV_IIC_SENSOR2, dev, len, pdat);
         }
     }
 
@@ -69,10 +69,10 @@ u8 amp_read_stus(void)
     
     if (amp61xx_entity.parent != NULL){
         if (amp61xx_entity.parent->SampleChannel == I2C_CH1){
-            bsp_iic_readBytes(dev, 1, (u8*)&stus);
+            bsp_iic_readBytes(DEV_IIC_SENSOR, dev, 1, (u8*)&stus);
         }
         else if (amp61xx_entity.parent->SampleChannel == I2C_CH2){
-            //bsp_iic_readBytes(dev, 1, (u8*)&stus);
+            //bsp_iic_readBytes(DEV_IIC_SENSOR, dev, 1, (u8*)&stus);
         }
     }
 
@@ -89,10 +89,10 @@ u8 amp_read_bytes(u8 *dst, u8 len)
     
     if (amp61xx_entity.parent != NULL){
         if (amp61xx_entity.parent->SampleChannel == I2C_CH1){
-            ret = bsp_iic_readBytes(dev, len, dst);
+            ret = bsp_iic_readBytes(DEV_IIC_SENSOR, dev, len, dst);
         }
         else if (amp61xx_entity.parent->SampleChannel == I2C_CH2){
-            //ret = bsp_iic_readBytes(dev, len, dst);
+            //ret = bsp_iic_readBytes(DEV_IIC_SENSOR, dev, len, dst);
         }
     }
     return ret;
@@ -108,12 +108,12 @@ u8 amp_read_ADResult(u8 *pDat, u8 size)
     
     if (amp61xx_entity.parent != NULL){
         if (amp61xx_entity.parent->SampleChannel == I2C_CH1){
-            if (bsp_iic_readBytes(dev, size, pDat)){
+            if (bsp_iic_readBytes(DEV_IIC_SENSOR, dev, size, pDat)){
                 return TRUE;
             }
         }
         else if (amp61xx_entity.parent->SampleChannel == I2C_CH2){
-//            if (bsp_iic_readBytes(dev, size, pDat)){
+//            if (bsp_iic_readBytes(DEV_IIC_SENSOR, dev, size, pDat)){
 //                return TRUE;
 //            }
         }

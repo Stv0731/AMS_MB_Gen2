@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\common\bin\cspybat" -f "D:\02 WorkSpace\AMS_MB2_Gen2\EWARM\settings\AMS_MB_F401.AMS_MB_F401.general.xcl" --backend -f "D:\02 WorkSpace\AMS_MB2_Gen2\EWARM\settings\AMS_MB_F401.AMS_MB_F401.driver.xcl" 
+"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\02 WorkSpace\AMS_MB_Gen3\EWARM\settings\AMS_MB_F401.AMS_MB_F401.general.xcl" --backend -f "D:\02 WorkSpace\AMS_MB_Gen3\EWARM\settings\AMS_MB_F401.AMS_MB_F401.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\common\bin\cspybat" -f "D:\02 WorkSpace\AMS_MB2_Gen2\EWARM\settings\AMS_MB_F401.AMS_MB_F401.general.xcl" "--debug_file=%~1" --backend -f "D:\02 WorkSpace\AMS_MB2_Gen2\EWARM\settings\AMS_MB_F401.AMS_MB_F401.driver.xcl" 
+"C:\Program Files\IAR Systems\Embedded Workbench 9.0\common\bin\cspybat" -f "D:\02 WorkSpace\AMS_MB_Gen3\EWARM\settings\AMS_MB_F401.AMS_MB_F401.general.xcl" "--debug_file=%~1" --backend -f "D:\02 WorkSpace\AMS_MB_Gen3\EWARM\settings\AMS_MB_F401.AMS_MB_F401.driver.xcl" 
 
 @echo off 
 :end

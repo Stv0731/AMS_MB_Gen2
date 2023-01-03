@@ -163,6 +163,7 @@ void AmpProcessInit(void)
  *  RETURNS:
  *      None.
  */
+extern void SendSampleDataFromSCI(void);
 uint8_t bmp3_start = 0;
 void vTaskAmpProcess(void* argument) 
 {

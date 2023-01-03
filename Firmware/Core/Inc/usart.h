@@ -32,7 +32,9 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart1;
+
+extern UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN Private defines */
 
@@ -55,8 +57,9 @@ _SCI_Event;
 
 typedef struct
 {
-  uint32_t      event;
-  uint8_t       buf[12];
+  uint8_t       dev;
+  uint8_t       event;
+  uint8_t       buf[14];
 }
 _SCI_QueueType;
 
@@ -68,9 +71,9 @@ typedef struct
 
 /* Parameters  */
 typedef struct {
-    uint32_t baud;                      /* æ³¢ç‰¹ç‡ */
-    uint32_t hal_idel_timeout;              /* æ•°æ®åŒ…ç»“æŸè¶…æ—¶æ—¶é—´,å•ä½ms */
-    uint32_t tr_timeout;                /* å‘é€è½¬æ¥å—é—´éš”æ—¶é—´,å•ä½ms */
+    uint32_t baud;                      /* ²¨ÌØÂÊ */
+    uint32_t hal_idel_timeout;              /* Êı¾İ°ü½áÊø³¬Ê±Ê±¼ä,µ¥Î»ms */
+    uint32_t tr_timeout;                /* ·¢ËÍ×ª½ÓÊÜ¼ä¸ôÊ±¼ä,µ¥Î»ms */
 }_SCI_PARAM;
 
 /* function defined for DevSci_Ioctl() */
@@ -86,17 +89,31 @@ enum SCI_HANLDE_RETURN_DEF
     SCI_HDL_ERR2
 };
 
+typedef enum {
+    DEV_SCI_1 = 0,
+    DEV_SCI_2,
+    NUM_OF_SCI
+}_SCI_DEVICE;
+#define DEV_SCI_PCCOM       DEV_SCI_1
+#define DEV_SCI_RESERVED    DEV_SCI_2
+
+typedef struct{
+    _SCI_DEVICE dev;
+    UART_HandleTypeDef *huart; 
+    TimerHandle_t xTimer_SCI_ReceiveDone;
+}_SCI_DEVICE_LIST;
+
 /* USER CODE END Private defines */
 
-void MX_USART2_UART_Init(void);
+void MX_USART1_UART_Init(void);
+void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 void SCI_Interface_Init(void);
-void SCI_Send_MsgProduce(uint8_t* Buf, uint16_t Len);
-void SCI_Recv_MsgProduce(uint8_t isr);
-void SCI_IRQHandler(UART_HandleTypeDef *huart);
+void SCI_Send_MsgProduce(_SCI_DEVICE dev, uint8_t* Buf, uint16_t Len);
+void SCI_Recv_MsgProduce(_SCI_DEVICE dev, uint8_t isr);
+void SCI_IRQHandler(_SCI_DEVICE dev);
 void SendSampleDataFromSCI(void);
-//void SendSampleData(void);
 
 /* USER CODE END Prototypes */
 

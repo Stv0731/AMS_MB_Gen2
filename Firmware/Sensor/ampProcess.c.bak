@@ -166,7 +166,7 @@ void vTaskAmpProcess(void* argument)
 	uint32_t millisec = 2;
 	TickType_t ticks = pdMS_TO_TICKS(millisec);
     
-    //Amp61XXInit();
+    Amp61XXInit();
         
     //bmp3_ss_init();
 

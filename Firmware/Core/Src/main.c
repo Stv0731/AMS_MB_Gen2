@@ -22,6 +22,7 @@
 #include "adc.h"
 #include "i2c.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
@@ -31,6 +32,7 @@
 #include "usbd_cdc_if.h"
 #include "usb_interface.h"
 #include "ampProcess.h"
+#include "i2c_interface.h"
 
 /* USER CODE END Includes */
 
@@ -106,16 +108,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
+//  MX_I2C1_Init();
 //  MX_I2C3_Init();
 //  MX_SPI1_Init();
-//  MX_SPI2_Init();
 //  MX_SPI3_Init();
-//  MX_SPI4_Init();
-  MX_USART2_UART_Init();
-  //MX_I2C1_Init();
+  MX_USART1_UART_Init();
+  MX_USART6_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  SDA_Pin_Config(0);
-  SCL_Pin_Config(0);
+  IIC_Device_Init();
 
   /* USER CODE END 2 */
 
@@ -205,13 +206,14 @@ void SystemClock_Config(void)
  *  RETURNS:
  *      None.
  */
+uint8_t tmpdb = 0;
+extern void IIC_SDA_Set(_IIC_DEVICE_ID devID, u8 x);
 void vStartTask(void* argument)
 {
     uint32_t millisec = 10;
     TickType_t ticks = pdMS_TO_TICKS(millisec);
     
     uint16_t i = 0;
-    //uint8_t sci_send_pack[10] = {'1','2','3','4','5','6','7','8','9','10'};
     
     (void) argument;
     /* init code for USB_DEVICE */
@@ -220,7 +222,7 @@ void vStartTask(void* argument)
     uint32_t timestart = HAL_GetTick();
         
     /* ADC task init */
-    //ADC_Task_Init();
+    ADC_Task_Init();
     
     /* USB interface initialization */
     Usb_Interface_Init();
@@ -234,13 +236,11 @@ void vStartTask(void* argument)
     while(1)
     {
         if(++i == 100){
-            LED_GREEN_ON();
-            LED_RED_BLINK();
-            //SCI_Send_MsgProduce(sci_send_pack, 6);
+            LED_STUS_BLINK();
         }
         else if (i==200){
             i = 0;
-            LED_GREEN_OFF();
+            //LED_GREEN_OFF();
         }
         
 //        if((HAL_GetTick() - timestart) > 1000){
@@ -255,7 +255,28 @@ void vStartTask(void* argument)
 //            }
 //            usbRxLen = 0;
 //        }
-        
+        if (tmpdb == 10){
+            //DEV_PIN_SET(IIC_Device_List[DEV_IIC_SENSOR].SDA_Port, IIC_Device_List[DEV_IIC_SENSOR].SDA_Pin, 0);
+            _IIC_DEVICE *entity = NULL;
+            entity = &IIC_Device_List[0];
+            //IIC_SDA_Set(DEV_IIC_SENSOR, 1);
+            SDA_PIN_SET(entity->SDA_Port, entity->SDA_Pin, 0);
+        }
+        else if(tmpdb == 11){
+            //DEV_PIN_SET(IIC_Device_List[DEV_IIC_SENSOR].SDA_Port, IIC_Device_List[DEV_IIC_SENSOR].SDA_Pin, 1);
+            _IIC_DEVICE *entity = NULL;
+            entity = &IIC_Device_List[0];
+            //IIC_SDA_Set(DEV_IIC_SENSOR, 1);
+            SDA_PIN_SET(entity->SDA_Port, entity->SDA_Pin, 1);
+        }
+        if (tmpdb == 20){
+            IIC_SDA_Set(DEV_IIC_SENSOR, 0);
+            //SDA_PIN_SET(IIC_Device_List[DEV_IIC_SENSOR].SDA_Port, IIC_Device_List[DEV_IIC_SENSOR].SDA_Pin, 0);
+        }
+        else if(tmpdb == 21){
+            IIC_SDA_Set(DEV_IIC_SENSOR, 1);
+            //SDA_PIN_SET(IIC_Device_List[DEV_IIC_SENSOR].SDA_Port, IIC_Device_List[DEV_IIC_SENSOR].SDA_Pin, 1);
+        }
         //vTaskSuspend(StartTaskHandle);
         vTaskDelay(ticks);
     }

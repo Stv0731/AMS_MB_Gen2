@@ -98,7 +98,7 @@ UINT8 AMP8220SampleProcess(UINT32 timebyms)
         /* 1. Read ADC value */
 		switch (entity->parent->SampleChannel){
         case ANALOG1:
-            raw = ADC_GetValue(AD1_CHANNEL);
+            raw = ADC_GetValue(AD0_CHANNEL);
             break;
         default:
             break;
@@ -108,7 +108,7 @@ UINT8 AMP8220SampleProcess(UINT32 timebyms)
         
         if (raw != 0xFFFF){
             entity->ADC_raw = raw;
-            entity->Vout = (uint32_t)raw * 3300 * 2 / 4095;
+            entity->Vout = (uint32_t)raw * 3300 * 168 / 409500;
             
             entity->pres_real = PresDat_Convert(entity->Vout, entity->parent->iirCoef, AMP8220_PRS_MAX*AMP8220_PRS_SCALE, AMP8220_PRS_MIN * AMP8220_PRS_SCALE);
         }

@@ -13,7 +13,7 @@
 #ifndef __I2C_INTERFACE_H
 #define __I2C_INTERFACE_H
 
-#include "gpio.h"
+#include "main.h"
 
 /** unsigned types */
 typedef unsigned char 			u8;
@@ -32,19 +32,33 @@ typedef signed long long 		s64;
 #define FALSE 0
 #endif
 
-/** SCL&SDA hardware operation  */
-#define IIC_SCL_Set(x)          SCL_PIN_SET(x)
-#define IIC_SDA_Set(x)          SDA_PIN_SET(x)
-#define IIC_SDA_Read()          SDA_PIN_GET()
+/** Device ID define */
+typedef enum{
+    DEV_IIC_SENSOR = 0,
+    DEV_IIC_SENSOR2,
+    DEV_IIC_TM117,
+    DEV_IIC_DISPLAY,
+    DEV_IIC_ADS1113,
+    NUM_OF_DEV_IIC
+}_IIC_DEVICE_ID;
 
-/** Device ID */
-#define DEVICE_ID               0xF0
+typedef struct{
+    _IIC_DEVICE_ID devID;
+    
+    GPIO_TypeDef  *SCL_Port;
+    uint32_t       SCL_Pin;
+    GPIO_TypeDef  *SDA_Port;
+    uint32_t       SDA_Pin;
+    
+}_IIC_DEVICE;
+extern _IIC_DEVICE IIC_Device_List[NUM_OF_DEV_IIC];
 
 /** Global function Declarations */
 void delay_us(u32 micros);
-u8 bsp_iic_writeBytes(u8 dev, u8 length, u8* data);
-u8 bsp_iic_readBytes(u8 dev, u8 length, u8 *data);
-void bsp_IIC_Config(void);
+u8 bsp_iic_writeBytes(_IIC_DEVICE_ID devID, u8 dev, u8 length, u8* data);
+u8 bsp_iic_readBytes(_IIC_DEVICE_ID devID, u8 dev, u8 length, u8 *data);
+void IIC_Device_Init(void);
 
+u8 GetDevicebyID(_IIC_DEVICE_ID id, _IIC_DEVICE *dev);
 #endif /* End of i2c_interface include */
 /*******************END OF FILE******************************************************************************/

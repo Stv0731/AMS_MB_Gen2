@@ -42,9 +42,12 @@ void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 #define ADC_CHANNEL_NUMBER      3
-#define AD0_CHANNEL             0
-#define AD1_CHANNEL             1
-#define AD2_CHANNEL             2
+#define AD0_CHANNEL             0   // Sensor
+#define AD1_CHANNEL             1   // 5V ref
+#define AD2_CHANNEL             2   // Internal temp
+#define AD3_CHANNEL             3
+#define AD4_CHANNEL             4
+
 extern uint16_t AnalogRowData[ADC_CHANNEL_NUMBER];
 uint16_t ADC_GetValue(uint8_t channel);
 void ADC_Task_Init(void);

@@ -32,8 +32,8 @@ BMP3_INTF_RET_TYPE bmp3_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t l
     uint8_t ret = 0;
     uint8_t dev_addr = *(uint8_t *)intf_ptr;
     //portENTER_CRITICAL();
-    ret = bsp_iic_writeBytes(dev_addr, 1, &reg_addr);
-    ret = bsp_iic_readBytes(dev_addr, len, reg_data);
+    ret = bsp_iic_writeBytes(DEV_IIC_SENSOR, dev_addr, 1, &reg_addr);
+    ret = bsp_iic_readBytes(DEV_IIC_SENSOR, dev_addr, len, reg_data);
     //portEXIT_CRITICAL();
     //return HAL_I2C_Mem_Read(&hi2c1, dev_addr << 0x01, reg_addr, 1, reg_data, (uint16_t)len, 100);
     ret = ret;
@@ -54,7 +54,7 @@ BMP3_INTF_RET_TYPE bmp3_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uin
         *ptr++ = *reg_data++;
     }
     //portENTER_CRITICAL();
-    ret = bsp_iic_writeBytes(dev_addr, (len+1), tmp_iic_buf);
+    ret = bsp_iic_writeBytes(DEV_IIC_SENSOR, dev_addr, (len+1), tmp_iic_buf);
     //portEXIT_CRITICAL();
     //return HAL_I2C_Mem_Write(&hi2c1, dev_addr << 0x01, reg_addr, 1, (uint8_t *)reg_data, (uint16_t)len, 100);
     return BMP3_INTF_RET_SUCCESS;
