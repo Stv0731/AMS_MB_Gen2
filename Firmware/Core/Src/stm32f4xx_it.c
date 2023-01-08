@@ -59,9 +59,14 @@
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+<<<<<<< .mine
 extern TIM_HandleTypeDef htim2;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart6;
+||||||| .r32
+=======
+extern UART_HandleTypeDef huart2;
+>>>>>>> .r44
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -187,6 +192,7 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+<<<<<<< .mine
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
@@ -215,6 +221,23 @@ void USART1_IRQHandler(void)
 }
 
 /**
+||||||| .r32
+=======
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  //HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+  SCI_IRQHandler(&huart2);
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+>>>>>>> .r44
   * @brief This function handles USB On The Go FS global interrupt.
   */
 void OTG_FS_IRQHandler(void)

@@ -2,7 +2,7 @@
 <project>
     <fileVersion>3</fileVersion>
     <configuration>
-        <name>AMS_MB_F401</name>
+        <name>AMS_MB_F401RC</name>
         <toolchain>
             <name>ARM</name>
         </toolchain>
@@ -1190,7 +1190,7 @@
         <group>
             <name>EWARM</name>
             <file>
-                <name>$PROJ_DIR$\startup_stm32f401xe.s</name>
+                <name>$PROJ_DIR$\startup_stm32f401xc.s</name>
             </file>
         </group>
         <group>
@@ -1222,6 +1222,9 @@
                     <name>$PROJ_DIR$\..\Core\Src\stm32f4xx_it.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Core\Src\tim.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Core\Src\usart.c</name>
                 </file>
                 <file>
@@ -1238,6 +1241,9 @@
                 <name>Sensor</name>
                 <file>
                     <name>$PROJ_DIR$\..\Sensor\amp6100br.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Sensor\amp8220.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Sensor\ampProcess.c</name>
