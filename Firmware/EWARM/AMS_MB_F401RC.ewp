@@ -1111,6 +1111,9 @@
                 <file>
                     <name>$PROJ_DIR$\..\Sensor\bmp3_common.c</name>
                 </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Sensor\tmp117.c</name>
+                </file>
             </group>
             <group>
                 <name>USB_DEVICE</name>

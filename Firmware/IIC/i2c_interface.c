@@ -32,7 +32,7 @@ _IIC_DEVICE IIC_Device_List[NUM_OF_DEV_IIC] =
 {   // ID               SCL_Port                SCL_Pin             SDA_Port                SDA_pin
     {DEV_IIC_SENSOR,    I2C_SEN_SCL_GPIO_Port,  I2C_SEN_SCL_Pin,    I2C_SEN_SDA_GPIO_Port,  I2C_SEN_SDA_Pin},
     {DEV_IIC_SENSOR2,   I2C_SEN2_SCL_GPIO_Port, I2C_SEN2_SCL_Pin,   I2C_SEN2_SDA_GPIO_Port, I2C_SEN2_SDA_Pin},
-    {DEV_IIC_TM117,     TMP117_SCL_GPIO_Port,   TMP117_SCL_Pin,     TMP117_ALERT_GPIO_Port, TMP117_ALERT_Pin},
+    {DEV_IIC_TM117,     TMP117_SCL_GPIO_Port,   TMP117_SCL_Pin,     TMP117_SDA_GPIO_Port,   TMP117_SDA_Pin},
     {DEV_IIC_DISPLAY,   LCD_SCL_GPIO_Port,      LCD_SCL_Pin,        LCD_SDA_GPIO_Port,      LCD_SDA_Pin},
     {DEV_IIC_ADS1113,   ADS_SCL_GPIO_Port,      ADS_SCL_Pin,        ADS_SDA_GPIO_Port,      ADS_SDA_Pin}
 };

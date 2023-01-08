@@ -19,6 +19,7 @@
 #include "amp6100br.h"
 #include "bmp3_common.h"
 #include "amp8220.h"
+#include "tmp117.h"
 
 extern void SendSampleData(void);
 
@@ -172,8 +173,10 @@ void vTaskAmpProcess(void* argument)
     
     Amp61XXInit();
     Amp8220Init();
-    //bmp3_ss_init();
-
+    bmp3_ss_init();
+    /** tmp117 init */
+    Tmp117Init();
+    
 	for (;;) {
         if (bmp3_start == 0  && amp_entity.SensorType == BMP3XX){
             bmp3_start = 1;
@@ -199,12 +202,10 @@ void vTaskAmpProcess(void* argument)
                 case AMP6120:
                 case AMP6127:
                     ret = AMP61XXSampleProcess(millisec);
-                    //SendSampleData();
                     break;
                     
                 case AMP8220:
                     ret = AMP8220SampleProcess(millisec);
-                    //if(ret) SendSampleData();
                     break;
                     
                 case BMP3XX:
@@ -219,6 +220,8 @@ void vTaskAmpProcess(void* argument)
                     SendSampleDataFromSCI();
             }
         }
+        
+        Tmp117SampleProcess(millisec);
         
         vTaskDelay(ticks);
     }

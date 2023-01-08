@@ -6,9 +6,7 @@
 
 "-p" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\CONFIG\debugger\ST\STM32F401VC.ddf" 
-
-"--drv_verify_download" 
+"C:\Program Files\IAR Systems\Embedded Workbench 9.0\arm\CONFIG\debugger\ST\STM32F401VC.ddf" 
 
 "--semihosting" 
 
@@ -16,7 +14,7 @@
 
 "--drv_interface=SWD" 
 
-"--stlink_reset_strategy=0,2" 
+"--stlink_reset_strategy=0,0" 
 
 "--drv_swo_clock_setup=72000000,0,2000000" 
 

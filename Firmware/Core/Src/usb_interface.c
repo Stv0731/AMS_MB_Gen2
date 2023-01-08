@@ -22,6 +22,7 @@
 #include "ampProcess.h"
 #include "amp6100br.h"
 #include "bmp3_common.h"
+#include "tmp117.h"
      
 extern uint8_t AutoRespFlag;       // bit0: USB, bit1: SCI
 
@@ -251,13 +252,14 @@ void usb_rcvd_pack_process(uint8_t *buf)
 void SendSampleData(void)
 {
     char* presp = (char*)usb_resp_pack[/*usb_trs_pack_ndx*/0];
+    int16_t tmp117 = GetTMP117RtdTemperature();
     uint8_t len_resp;
     
     if (auto_resp_delay != 0)
         return;
     
     usb_trs_pack_ndx = usb_trs_pack_ndx == (USB_RXV_PACK_NUM-1) ? 0 : (usb_trs_pack_ndx+1); 
-    sprintf ( presp, "+SAMPLES: %d, %d, %d, %d", amp_entity.pres_raw, amp_entity.pres_rt, amp_entity.temp_raw, amp_entity.temp_rt);
+    sprintf ( presp, "+SAMPLES: %d, %d, %d, %d, %d", amp_entity.pres_raw, amp_entity.pres_rt, amp_entity.temp_raw, amp_entity.temp_rt, tmp117);
     len_resp = strlen(presp);
     Usb_Send_MsgProduce((uint8_t*)presp, len_resp);
 }
